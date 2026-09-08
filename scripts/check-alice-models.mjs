@@ -22,20 +22,63 @@ registerHooks({
   },
 });
 const models = await import('../models/alice/alice-models.ts');
-const { ALICE_MODELS, ALICE_MODEL_IDS, pickAliceModel } = models;
+const { ALICE_MODELS, ALICE_MODEL_IDS, pickAliceModel, pickNextAliceModel } =
+  models;
 assert.equal(new Set(ALICE_MODEL_IDS).size, ALICE_MODEL_IDS.length);
 for (const required of ['winter', 'cape', 'dress'])
   assert(
     ALICE_MODEL_IDS.includes(required),
     `Existing outfit missing: ${required}`,
   );
-for (const [index, model] of ALICE_MODEL_IDS.entries())
-  for (const offset of [0, 0.5, 1 - 1e-9])
-    assert.equal(
-      pickAliceModel(() => (index + offset) / ALICE_MODEL_IDS.length),
-      model,
-      'Each outfit must have an equally sized selection interval',
+const ordinary = ALICE_MODEL_IDS.filter((id) => id !== 'penguin');
+const sampleFor = (model) =>
+  model === 'penguin'
+    ? 0.025
+    : 0.05 + ((ordinary.indexOf(model) + 0.5) * 0.95) / ordinary.length;
+const samples = 10000;
+const counts = Object.fromEntries(ALICE_MODEL_IDS.map((id) => [id, 0]));
+for (let i = 0; i < samples; i++)
+  counts[pickAliceModel(() => (i + 0.5) / samples)]++;
+assert.equal(counts.penguin, 500, 'Penguin owns exactly 5% of initial draws');
+for (const id of ordinary) assert.equal(counts[id], 9500 / ordinary.length);
+assert.equal(
+  pickAliceModel(() => 0),
+  'penguin',
+);
+assert.equal(
+  pickAliceModel(() => 0.05),
+  ordinary[0],
+);
+for (const current of ALICE_MODEL_IDS) {
+  let changed = 0;
+  let penguins = 0;
+  for (let i = 0; i < samples; i++) {
+    let calls = 0;
+    const next = pickNextAliceModel(current, () =>
+      ++calls === 1 ? (i + 0.5) / samples : 0.5,
     );
+    if (next !== current) changed++;
+    const replacement = pickAliceModel(() => (i + 0.5) / samples, current);
+    assert.notEqual(
+      replacement,
+      current,
+      'A replacement must actually change the outfit',
+    );
+    if (replacement === 'penguin') penguins++;
+  }
+  assert.equal(
+    changed,
+    current === 'penguin' ? 10000 : 6000,
+    `${current}: 60% ordinary switching, guaranteed penguin departure`,
+  );
+  assert.equal(penguins, current === 'penguin' ? 0 : 500);
+  if (current !== 'penguin')
+    assert.equal(
+      pickNextAliceModel(current, () => 0.6),
+      current,
+      '60% boundary keeps the current model',
+    );
+}
 assert.equal(
   models.getDocumentAliceModel(),
   'winter',
@@ -43,18 +86,18 @@ assert.equal(
 );
 
 const nativeRandom = Math.random;
-globalThis.window = {};
+globalThis.window = { location: { hostname: 'example.com', search: '' } };
 try {
-  Math.random = () => 1.5 / ALICE_MODEL_IDS.length;
+  Math.random = () => sampleFor('cape');
   assert.equal(
-    models.getDocumentAliceModel(),
+    models.getDocumentAliceModel('about'),
     'cape',
     'SSR must not select the client outfit',
   );
-  Math.random = () => 0.5 / ALICE_MODEL_IDS.length;
+  Math.random = () => sampleFor('winter');
   for (let i = 0; i < 20; i++)
     assert.equal(
-      models.getDocumentAliceModel(),
+      models.getDocumentAliceModel('about'),
       'cape',
       'Rerenders/remounts must retain this document outfit',
     );
@@ -65,22 +108,72 @@ try {
     'winter',
     'A new document must draw again',
   );
-  for (const [index, model] of ALICE_MODEL_IDS.entries()) {
-    Math.random = () => (index + 0.5) / ALICE_MODEL_IDS.length;
+  for (const model of ALICE_MODEL_IDS) {
+    Math.random = () => sampleFor(model);
     const freshDocument = await import(
       `../models/alice/alice-models.ts?document-${model}`
     );
     assert.equal(freshDocument.getDocumentAliceModel(), model);
-    Math.random = () =>
-      ((index + 1.5) % ALICE_MODEL_IDS.length) / ALICE_MODEL_IDS.length;
+    Math.random = () => 0;
     assert.equal(freshDocument.getDocumentAliceModel(), model);
   }
+  let calls = 0;
+  Math.random = () => {
+    calls++;
+    return 0;
+  };
+  assert.equal(models.getDocumentAliceModel('academic'), 'penguin');
+  assert.equal(
+    calls,
+    2,
+    'A changed section rolls once for switching and once for selection',
+  );
+  assert.equal(models.getDocumentAliceModel('academic'), 'penguin');
+  assert.equal(calls, 2, 'Same-page interactions never reroll');
+  assert.equal(
+    models.getDocumentAliceModel('about'),
+    'winter',
+    'Back navigation also switches',
+  );
+  assert.equal(
+    calls,
+    3,
+    'Leaving penguin draws only an ordinary replacement, without a probability gate',
+  );
+
+  window.location = {
+    hostname: '127.0.0.1',
+    search: '?alice-easter-egg=preview',
+  };
+  const preview = await import('../models/alice/alice-models.ts?preview');
+  Math.random = () => {
+    throw new Error('Forced preview should not draw random outfits');
+  };
+  assert.equal(preview.getDocumentAliceModel('about'), 'penguin');
+  Math.random = () => 0.99;
+  assert.notEqual(
+    preview.getDocumentAliceModel('academic'),
+    'penguin',
+    'Even the high-probability preview must leave penguin on the next page change',
+  );
+  assert.equal(
+    preview.getDocumentAliceModel('academic'),
+    'sweater',
+    'Same-page rerenders retain the replacement',
+  );
+  assert.equal(preview.getDocumentAliceModel('projects'), 'penguin');
+  window.location.hostname = 'ignatay.github.io';
+  assert.equal(
+    preview.isAliceEasterEggPreview(),
+    false,
+    'Preview odds cannot affect deployed visitors',
+  );
 } finally {
   Math.random = nativeRandom;
   delete globalThis.window;
 }
 console.log(
-  'PASS: equal model probability, SSR isolation, stable document selection and fresh reload selection.',
+  'PASS: 60% actual outfit changes, 5% penguin draws, no same-outfit replacements, section lifecycle, SSR isolation, fresh reloads and local-only forced preview.',
 );
 
 const requests = [];

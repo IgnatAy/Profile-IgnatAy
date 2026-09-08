@@ -30,6 +30,8 @@ import {
   SheetClose,
 } from '@/components/ui/sheet';
 import { DeferredCompanion } from '@/components/deferred-companion';
+import { FadedSwap, FadedSwapReady } from '@/components/faded-swap';
+import { homeEasterEgg } from '@/models/alice/alice-home-easter-egg';
 const ProfileSection = lazy(() => import('@/components/profile-sections'));
 import { socials, type Language } from '@/lib/profile';
 import {
@@ -75,18 +77,19 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNoticeDismissed, setMobileNoticeDismissed] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
+  const focusAfterNavigation = useRef(false);
   const t = (en: string, zh: string) => (lang === 'en' ? en : zh);
   useEffect(() => {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
   }, [lang]);
   const switchLanguage = () => saveLanguage(lang === 'en' ? 'zh' : 'en');
   const navigate = (id: Section) => {
+    focusAfterNavigation.current = id !== section;
     window.location.assign(`#${id}`);
     setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'instant' });
-    setTimeout(() => heading.current?.focus({ preventScroll: true }), 160);
+    if (id === section) heading.current?.focus({ preventScroll: true });
   };
-  const active = sections.find((item) => item.id === section)!;
   const navigation = (drawer = false) => (
     <nav
       aria-label={t('Main navigation', '主导航')}
@@ -122,12 +125,23 @@ export default function Home() {
       </a>
       <header className="site-header">
         <a
-          className="wordmark"
+          className="site-logo"
           href="#about"
-          onClick={() => navigate('about')}
+          onClick={(event) => {
+            if (
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return;
+            event.preventDefault();
+            homeEasterEgg.request(getSection());
+            navigate('about');
+          }}
           aria-label={t('Ignat · Home', 'Ignat · 主页')}
         >
-          ignat<i>.</i>
+          <img src="./icons/alice-logo.jpg" alt="" width={56} height={56} />
         </a>
         <div className="header-location">
           <span className="status-dot" />
@@ -184,142 +198,163 @@ export default function Home() {
           </div>
         </SheetContent>
       </Sheet>
-      <main
-        id="page-content"
-        className={`page-content page-${section}`}
-        key={section}
+      <FadedSwap
+        value={section}
+        className="page-transition"
+        onShown={() => {
+          if (focusAfterNavigation.current) {
+            focusAfterNavigation.current = false;
+            heading.current?.focus({ preventScroll: true });
+          }
+        }}
       >
-        {!mobileNoticeDismissed && (
-          <aside
-            className="mobile-desktop-notice"
-            aria-label={t('Browsing tip', '浏览提示')}
-          >
-            <Laptop size={20} aria-hidden="true" />
-            <p>
-              {t(
-                'For a better browsing experience, visit on a desktop.',
-                '建议通过桌面端访问，获得更好的浏览体验。',
-              )}
-            </p>
-            <button
-              type="button"
-              className="icon-button"
-              onClick={() => setMobileNoticeDismissed(true)}
-              aria-label={t('Dismiss browsing tip', '关闭浏览提示')}
+        {(section, onReady, isActive) => {
+          const active = sections.find((item) => item.id === section)!;
+          return (
+            <main
+              id={isActive ? 'page-content' : undefined}
+              className={`page-content page-${section}`}
+              key={section}
             >
-              <X size={18} />
-            </button>
-          </aside>
-        )}
-        {section === 'about' ? (
-          <>
-            <section className="intro-section">
-              <h1 ref={heading} tabIndex={-1}>
-                <span>
-                  Ignat<span className="accent-dot">.</span>
-                </span>
-              </h1>
-              <p className="intro-description">
-                {t(
-                  'PhD student · Shanghai Jiao Tong University',
-                  '博士生 · 上海交通大学',
-                )}
-              </p>
-              <div className="identity-tags">
-                <span>
-                  <MapPin size={14} />
-                  {t('Shanghai', '上海')}
-                </span>
-              </div>
-            </section>
-            <section className="social-section" aria-labelledby="social-title">
-              <h2 id="social-title" className="sr-only">
-                {t('Social profiles', '社交账号')}
-              </h2>
-              <div className="social-grid">
-                {socials.map((social) => (
+              {!mobileNoticeDismissed && (
+                <aside
+                  className="mobile-desktop-notice"
+                  aria-label={t('Browsing tip', '浏览提示')}
+                >
+                  <Laptop size={20} aria-hidden="true" />
+                  <p>
+                    {t(
+                      'Visit on a desktop for the full browsing experience.',
+                      '通过桌面端访问，获得完整的浏览体验。',
+                    )}
+                  </p>
+                  <button
+                    type="button"
+                    className="icon-button"
+                    onClick={() => setMobileNoticeDismissed(true)}
+                    aria-label={t('Dismiss browsing tip', '关闭浏览提示')}
+                  >
+                    <X size={18} />
+                  </button>
+                </aside>
+              )}
+              {section === 'about' ? (
+                <>
+                  <FadedSwapReady onReady={onReady} />
+                  <section className="intro-section">
+                    <h1 ref={isActive ? heading : undefined} tabIndex={-1}>
+                      <span>
+                        Ignat<span className="accent-dot">.</span>
+                      </span>
+                    </h1>
+                    <p className="intro-description">
+                      {t(
+                        'PhD student · Shanghai Jiao Tong University',
+                        '博士生 · 上海交通大学',
+                      )}
+                    </p>
+                    <div className="identity-tags">
+                      <span>
+                        <MapPin size={14} />
+                        {t('Shanghai', '上海')}
+                      </span>
+                    </div>
+                  </section>
+                  <section
+                    className="social-section"
+                    aria-labelledby="social-title"
+                  >
+                    <h2 id="social-title" className="sr-only">
+                      {t('Social profiles', '社交账号')}
+                    </h2>
+                    <div className="social-grid">
+                      {socials.map((social) => (
+                        <a
+                          key={social.name}
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${social.name === 'Bilibili' ? t('Bilibili', '哔哩哔哩') : social.name} · ${social.name === 'Bilibili' ? '1247015270' : 'IgnatAy'}`}
+                          title={
+                            social.name === 'Bilibili'
+                              ? t('Bilibili', '哔哩哔哩')
+                              : social.name
+                          }
+                        >
+                          <span
+                            className="social-icon"
+                            aria-hidden="true"
+                            style={{
+                              maskImage: `url("./icons/${social.icon}.svg")`,
+                              WebkitMaskImage: `url("./icons/${social.icon}.svg")`,
+                            }}
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  </section>
+                  <section className="about-notes">
+                    <div className="section-label">
+                      <h2>{t('Interests', '爱好')}</h2>
+                    </div>
+                    <div className="interest-list">
+                      {interests.map(({ icon: Icon, en, zh }) => (
+                        <span key={en}>
+                          <Icon size={16} />
+                          {t(en, zh)}
+                        </span>
+                      ))}
+                    </div>
+                    <a
+                      className="now-note"
+                      href="#academic"
+                      onClick={() => navigate('academic')}
+                    >
+                      <Satellite size={17} />
+                      <span>{t('Information & Control', '信息控制')}</span>
+                      <ArrowUpRight size={20} />
+                    </a>
+                  </section>
                   <a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${social.name === 'Bilibili' ? t('Bilibili', '哔哩哔哩') : social.name} · ${social.name === 'Bilibili' ? '1247015270' : 'IgnatAy'}`}
-                    title={
-                      social.name === 'Bilibili'
-                        ? t('Bilibili', '哔哩哔哩')
-                        : social.name
+                    href="#photography"
+                    className="photo-teaser"
+                    onClick={() => navigate('photography')}
+                  >
+                    <span>
+                      <Camera size={16} />
+                      {t('Travel & photography', '旅行与摄影')}
+                    </span>
+                    <ArrowUpRight size={22} />
+                  </a>
+                </>
+              ) : (
+                <>
+                  <div className="section-heading">
+                    <h1 ref={isActive ? heading : undefined} tabIndex={-1}>
+                      {t(active.en, active.zh)}
+                      <span className="accent-dot">.</span>
+                    </h1>
+                  </div>
+                  <Suspense
+                    fallback={
+                      <output className="section-loading">
+                        {t('Loading…', '加载中…')}
+                      </output>
                     }
                   >
-                    <span
-                      className="social-icon"
-                      aria-hidden="true"
-                      style={{
-                        maskImage: `url("./icons/${social.icon}.svg")`,
-                        WebkitMaskImage: `url("./icons/${social.icon}.svg")`,
-                      }}
-                    />
-                  </a>
-                ))}
-              </div>
-            </section>
-            <section className="about-notes">
-              <div className="section-label">
-                <h2>{t('Interests', '爱好')}</h2>
-              </div>
-              <div className="interest-list">
-                {interests.map(({ icon: Icon, en, zh }) => (
-                  <span key={en}>
-                    <Icon size={16} />
-                    {t(en, zh)}
-                  </span>
-                ))}
-              </div>
-              <a
-                className="now-note"
-                href="#academic"
-                onClick={() => navigate('academic')}
-              >
-                <Satellite size={17} />
-                <span>{t('Information & Control', '信息控制')}</span>
-                <ArrowUpRight size={20} />
-              </a>
-            </section>
-            <a
-              href="#photography"
-              className="photo-teaser"
-              onClick={() => navigate('photography')}
-            >
-              <span>
-                <Camera size={16} />
-                {t('Travel & photography', '旅行与摄影')}
-              </span>
-              <ArrowUpRight size={22} />
-            </a>
-          </>
-        ) : (
-          <>
-            <div className="section-heading">
-              <h1 ref={heading} tabIndex={-1}>
-                {t(active.en, active.zh)}
-                <span className="accent-dot">.</span>
-              </h1>
-            </div>
-            <Suspense
-              fallback={
-                <output className="section-loading">
-                  {t('Loading…', '加载中…')}
-                </output>
-              }
-            >
-              <ProfileSection section={section} lang={lang} />
-            </Suspense>
-          </>
-        )}
-        <footer className="site-footer">
-          <span>© {new Date().getFullYear()} Ignat</span>
-        </footer>
-      </main>
-      <DeferredCompanion lang={lang} />
+                    <ProfileSection section={section} lang={lang} />
+                    <FadedSwapReady onReady={onReady} />
+                  </Suspense>
+                </>
+              )}
+              <footer className="site-footer">
+                <span>© {new Date().getFullYear()} Ignat</span>
+              </footer>
+            </main>
+          );
+        }}
+      </FadedSwap>
+      <DeferredCompanion lang={lang} section={section} />
     </SidebarProvider>
   );
 }

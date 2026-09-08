@@ -111,6 +111,10 @@ export function AliceCharacter({
   const showRig = layered && rigReady === displayPose;
   const loaded = loadedFrames.has(displayPose);
   useEffect(() => {
+    // A decoded fallback may already exist when layered loading fails.
+    if (!layered && loaded) callbacks.current.onReady();
+  }, [layered, loaded]);
+  useEffect(() => {
     // The rig keeps its current canvas until the requested pose has painted.
     // Never insert a differently aligned sprite between two layered poses.
     if (layered || pose === displayPose) return;
@@ -250,7 +254,7 @@ export function AliceCharacter({
                 setLoadedFrames((current) =>
                   current.has(name) ? current : new Set([...current, name]),
                 );
-                if (name === displayPose) callbacks.current.onReady();
+                if (name === displayPose && !layered) callbacks.current.onReady();
               }}
               onError={() => callbacks.current.onError()}
             />

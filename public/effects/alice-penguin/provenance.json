@@ -1,0 +1,33 @@
+{
+  "source_page": "https://kenney.nl/assets/particle-pack",
+  "download_url": "https://kenney.nl/media/pages/assets/particle-pack/f8fe0f8cb8-1677578741/kenney_particle-pack.zip",
+  "license": "CC0 1.0 Universal",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "author": "Kenney Vleugels (Kenney.nl)",
+  "download_date": "2026-09-08",
+  "note": "Unmodified PNG originals extracted directly from the official archive. circle_01 is an abstract luminous ring suitable for a stylized bubble; star_01 is a soft four-point sparkle. No standalone PNG download URL is published; download_url plus archive_path identifies each asset exactly.",
+  "files": [
+    {
+      "local_file": "circle_01.png",
+      "archive_path": "PNG (Transparent)/circle_01.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 69755,
+      "alpha_range": [
+        0,
+        143
+      ]
+    },
+    {
+      "local_file": "star_01.png",
+      "archive_path": "PNG (Transparent)/star_01.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 42118,
+      "alpha_range": [
+        0,
+        238
+      ]
+    }
+  ]
+}

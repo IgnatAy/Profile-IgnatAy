@@ -1,3 +1,4 @@
+import { homeEasterEgg } from './alice-home-easter-egg';
 import {
   ALICE_ASSET_REVISION,
   ALICE_POSES,
@@ -51,14 +52,70 @@ export const ALICE_MODELS = {
 export type AliceModel = keyof typeof ALICE_MODELS;
 export const ALICE_MODEL_IDS = Object.keys(ALICE_MODELS) as AliceModel[];
 
-export function pickAliceModel(random: () => number = Math.random): AliceModel {
-  return ALICE_MODEL_IDS[Math.floor(random() * ALICE_MODEL_IDS.length)];
+export const ALICE_MODEL_CHANGE_CHANCE = 0.6;
+export const ALICE_PENGUIN_CHANCE = 0.05;
+
+// Draw a different outfit when switching. Penguin retains its own 5% bucket;
+// the remaining probability is shared equally by eligible ordinary outfits.
+export function pickAliceModel(
+  random: () => number = Math.random,
+  current?: AliceModel,
+): AliceModel {
+  const roll = random();
+  const penguinChance = current === 'penguin' ? 0 : ALICE_PENGUIN_CHANCE;
+  if (roll < penguinChance) return 'penguin';
+  const ordinary = ALICE_MODEL_IDS.filter(
+    (model) => model !== 'penguin' && model !== current,
+  );
+  const index = Math.floor(
+    ((roll - penguinChance) / (1 - penguinChance)) * ordinary.length,
+  );
+  return ordinary[Math.min(index, ordinary.length - 1)];
 }
 
-// Document lifetime only: rerenders/remounts keep the outfit, reloads draw again.
-// The server never selects or persists a visitor's model.
+export function pickNextAliceModel(
+  current: AliceModel,
+  random: () => number = Math.random,
+): AliceModel {
+  // Penguin is a brief encounter: any real page change must leave this outfit.
+  if (current === 'penguin') return pickAliceModel(random, current);
+  return random() < ALICE_MODEL_CHANGE_CHANCE
+    ? pickAliceModel(random, current)
+    : current;
+}
+
+// Explicit local preview only. The deployed site always uses normal odds.
+export function isAliceEasterEggPreview(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname) &&
+    new URLSearchParams(window.location.search).get('alice-easter-egg') ===
+      'preview'
+  );
+}
+
+// A resolved section change gets one roll, including browser back/forward.
+// Rerenders, language changes and remounts on the same section do not reroll.
 let documentModel: AliceModel | undefined;
-export function getDocumentAliceModel(): AliceModel {
+let documentSection: string | undefined;
+export function getDocumentAliceModel(section?: string): AliceModel {
   if (typeof window === 'undefined') return 'winter';
-  return (documentModel ??= pickAliceModel());
+  const preview = isAliceEasterEggPreview();
+  const guaranteed = homeEasterEgg.take(section, documentModel !== 'penguin');
+  if (guaranteed) documentModel = 'penguin';
+  else if (!documentModel)
+    documentModel = preview ? 'penguin' : pickAliceModel();
+  else if (
+    section !== undefined &&
+    documentSection !== undefined &&
+    section !== documentSection
+  )
+    documentModel =
+      documentModel === 'penguin'
+        ? pickNextAliceModel(documentModel)
+        : preview
+          ? 'penguin'
+          : pickNextAliceModel(documentModel);
+  if (section !== undefined) documentSection = section;
+  return documentModel;
 }

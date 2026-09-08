@@ -40,9 +40,9 @@ export function advanceIdleMotion(state: IdleMotion, dt: number, active: boolean
   if (age >= state.duration) {
     state.startedAt = null;
     state.gesture = state.target;
-    // Allow the springs to settle, then at least six full seconds of breathing
-    // in this stance before slowly choosing another. There is no return pulse.
-    state.nextAt = state.elapsed + 7 + random() * 4;
+    // Hold this stance for 2.5–4.5 seconds before choosing another.
+    // There is no return pulse between gestures.
+    state.nextAt = state.elapsed + 2.5 + random() * 2;
     return state.gesture;
   }
   const t = ease(age / state.duration), from = state.from, target = state.target;

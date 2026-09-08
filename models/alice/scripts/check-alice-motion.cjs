@@ -29,7 +29,7 @@ async function main() {
     if (controller.startedAt !== null && controller.startedAt !== lastStart) {
       if (heldGesture) {
         const hold = controller.elapsed - heldAt;
-        assert(hold >= 7, `Stance only held for ${hold}s`); holds.push(hold);
+        assert(hold >= 2.5 && hold <= 4.5 + 1 / 60, `Stance held outside 2.5–4.5s: ${hold}s`); holds.push(hold);
         assert.deepEqual(gesture, heldGesture, 'Next move must start at the held stance');
         heldGesture = null;
       }
@@ -41,7 +41,7 @@ async function main() {
     }
     samples.push({ time: i / 60, x: state.torso.value, gesture: Math.abs(gesture.lean) });
   }
-  assert(gestureStarts.length >= 6 && gestureStarts.length <= 10, 'Stance changes must remain infrequent');
+  assert(gestureStarts.length >= 13 && gestureStarts.length <= 21, 'Stance cadence must include transitions and 2.5–4.5s holds');
   assert(variants.size === 4, 'All four gesture families must be reachable');
   assert(gestureStarts[0] <= 4.1, 'First gesture must be noticeable shortly after load');
   const active = samples.filter(s => s.gesture > .5);

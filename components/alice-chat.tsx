@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import type { Language } from '@/lib/profile';
 import { requestAliceReply } from '@/lib/alice-client';
+import { ALICE_BUBBLE_MS } from '@/lib/interaction-timing';
+import { startVisibleTimeline } from '@/lib/visible-timeline';
 import {
   ALICE_MAX_TURNS,
   retainAliceTurns,
@@ -41,7 +43,7 @@ export function AliceChat({
   const log = useRef<HTMLDivElement>(null);
   const bubble = useRef<HTMLDivElement>(null);
   const request = useRef<AbortController | null>(null);
-  const bubbleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bubbleTimer = useRef<(() => void) | null>(null);
   const t = (en: string, zh: string) => (lang === 'en' ? en : zh);
   const lastMessage = messages[messages.length - 1];
   const latestReply =
@@ -67,7 +69,7 @@ export function AliceChat({
       const active = request.current;
       request.current = null;
       active?.abort();
-      if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
+      bubbleTimer.current?.();
       onSpeaking(false);
     };
   }, [onSpeaking]);
@@ -92,7 +94,7 @@ export function AliceChat({
     setBubbleVisible(true);
     setPending(true);
     onSpeaking(false);
-    if (bubbleTimer.current) clearTimeout(bubbleTimer.current);
+    bubbleTimer.current?.();
     const controller = new AbortController();
     request.current = controller;
     const timeout = setTimeout(() => controller.abort(), 50000);
@@ -111,7 +113,6 @@ export function AliceChat({
       if (controller.signal.aborted) return;
       setMessages(retainAliceTurns([...next, { role: 'assistant', content }]));
       setStreamingReply('');
-      bubbleTimer.current = setTimeout(() => setBubbleVisible(false), 6000);
     } catch (failure) {
       if (controller.signal.aborted && request.current !== controller) return;
       setError(
@@ -123,6 +124,9 @@ export function AliceChat({
         request.current = null;
         setPending(false);
         onSpeaking(false);
+        bubbleTimer.current = startVisibleTimeline([
+          { after: ALICE_BUBBLE_MS, run: () => setBubbleVisible(false) },
+        ]);
       }
     }
   }
