@@ -1,0 +1,179 @@
+{
+  "width": 3341,
+  "height": 5855,
+  "source": "ARI_A_17_12_00-HD.png",
+  "faceRevision": "penguin-native-20260908-1",
+  "layers": [
+    {
+      "id": "body",
+      "file": "body.png",
+      "runtimeFile": "body.webp",
+      "left": 0,
+      "top": 0,
+      "width": 3341,
+      "height": 5855
+    },
+    {
+      "id": "headRest",
+      "file": "headRest.png",
+      "runtimeFile": "headRest.webp",
+      "left": 1220,
+      "top": 0,
+      "width": 800,
+      "height": 1450
+    },
+    {
+      "id": "headTalk",
+      "file": "headTalk.png",
+      "runtimeFile": "headTalk.webp",
+      "left": 1220,
+      "top": 0,
+      "width": 800,
+      "height": 1450
+    },
+    {
+      "id": "head",
+      "file": "head.png",
+      "runtimeFile": "head.webp",
+      "left": 1220,
+      "top": 0,
+      "width": 800,
+      "height": 1450
+    },
+    {
+      "id": "hairLeft",
+      "file": "hairLeft.png",
+      "runtimeFile": "hairLeft.webp",
+      "left": 1220,
+      "top": 0,
+      "width": 800,
+      "height": 1450
+    },
+    {
+      "id": "hairRight",
+      "file": "hairRight.png",
+      "runtimeFile": "hairRight.webp",
+      "left": 1220,
+      "top": 0,
+      "width": 800,
+      "height": 1450
+    },
+    {
+      "id": "bow",
+      "file": "bow.png",
+      "runtimeFile": "bow.webp",
+      "left": 1220,
+      "top": 0,
+      "width": 800,
+      "height": 1450
+    },
+    {
+      "id": "backing",
+      "file": "backing.png",
+      "runtimeFile": "backing.webp",
+      "left": 1260,
+      "top": 650,
+      "width": 740,
+      "height": 750
+    },
+    {
+      "id": "eyesOpen",
+      "file": "eyesOpen.png",
+      "runtimeFile": "eyesOpen.webp",
+      "left": 1433,
+      "top": 918,
+      "width": 427,
+      "height": 150
+    },
+    {
+      "id": "eyesHalf",
+      "file": "eyesHalf.png",
+      "runtimeFile": "eyesHalf.webp",
+      "left": 1433,
+      "top": 918,
+      "width": 427,
+      "height": 150
+    },
+    {
+      "id": "eyesClosed",
+      "file": "eyesClosed.png",
+      "runtimeFile": "eyesClosed.webp",
+      "left": 1433,
+      "top": 918,
+      "width": 427,
+      "height": 150
+    },
+    {
+      "id": "mouthClosed",
+      "file": "mouthClosed.png",
+      "runtimeFile": "mouthClosed.webp",
+      "left": 1600,
+      "top": 1110,
+      "width": 112,
+      "height": 74
+    },
+    {
+      "id": "mouth",
+      "file": "mouth.png",
+      "runtimeFile": "mouth.webp",
+      "left": 1600,
+      "top": 1110,
+      "width": 112,
+      "height": 74
+    }
+  ],
+  "rig": {
+    "headPivot": {
+      "x": 1670,
+      "y": 1320
+    },
+    "bodyPivot": {
+      "x": 1670,
+      "y": 3500
+    },
+    "bodyRigidUntil": 1800,
+    "bodyFixedFrom": 5250,
+    "hairLeft": {
+      "pin": 1320,
+      "tip": 1390
+    },
+    "hairRight": {
+      "pin": 1320,
+      "tip": 1390
+    },
+    "headGain": 0,
+    "nodGain": 0,
+    "arms": [],
+    "bowPivot": {
+      "x": 1670,
+      "y": 410
+    },
+    "blink": true,
+    "mouth": false
+  },
+  "eyeSources": {
+    "open": "ARI_A_17_12_00-HD.png",
+    "half": "penguin-half.png",
+    "closed": "penguin-closed.png"
+  },
+  "mouthSource": null,
+  "expressions": [
+    {
+      "id": "17_12_00",
+      "source": "ARI_A_17_12_00-HD.png",
+      "sprite": "idle.webp"
+    }
+  ],
+  "borrowedEyes": {
+    "model": "cape",
+    "pose": "relaxed",
+    "open": "ARI_A_13_08_00-HD.png",
+    "half": "ARI_A_13_08_02-HD.png",
+    "closed": "ARI_A_13_08_03-HD.png",
+    "offset": [
+      754,
+      356
+    ],
+    "method": "native donor expression difference mask, expanded 5px and feathered; preserve penguin alpha"
+  }
+}

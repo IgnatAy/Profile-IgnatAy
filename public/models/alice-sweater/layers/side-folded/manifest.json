@@ -1,0 +1,180 @@
+{
+  "width": 935,
+  "height": 5255,
+  "source": "ARI_A_01_16_00-HD.png",
+  "faceRevision": "sweater-native-20260908-1",
+  "layers": [
+    {
+      "id": "body",
+      "file": "body.png",
+      "runtimeFile": "body.webp",
+      "left": 0,
+      "top": 0,
+      "width": 935,
+      "height": 5255
+    },
+    {
+      "id": "headRest",
+      "file": "headRest.png",
+      "runtimeFile": "headRest.webp",
+      "left": 48,
+      "top": 0,
+      "width": 716,
+      "height": 1000
+    },
+    {
+      "id": "headTalk",
+      "file": "headTalk.png",
+      "runtimeFile": "headTalk.webp",
+      "left": 48,
+      "top": 0,
+      "width": 716,
+      "height": 1000
+    },
+    {
+      "id": "head",
+      "file": "head.png",
+      "runtimeFile": "head.webp",
+      "left": 48,
+      "top": 0,
+      "width": 716,
+      "height": 1000
+    },
+    {
+      "id": "hairLeft",
+      "file": "hairLeft.png",
+      "runtimeFile": "hairLeft.webp",
+      "left": 48,
+      "top": 0,
+      "width": 716,
+      "height": 1000
+    },
+    {
+      "id": "hairRight",
+      "file": "hairRight.png",
+      "runtimeFile": "hairRight.webp",
+      "left": 48,
+      "top": 0,
+      "width": 716,
+      "height": 1000
+    },
+    {
+      "id": "bow",
+      "file": "bow.png",
+      "runtimeFile": "bow.webp",
+      "left": 48,
+      "top": 0,
+      "width": 716,
+      "height": 1000
+    },
+    {
+      "id": "backing",
+      "file": "backing.png",
+      "runtimeFile": "backing.webp",
+      "left": 175,
+      "top": 770,
+      "width": 550,
+      "height": 290
+    },
+    {
+      "id": "eyesOpen",
+      "file": "eyesOpen.png",
+      "runtimeFile": "eyesOpen.webp",
+      "left": 324,
+      "top": 392,
+      "width": 374,
+      "height": 218
+    },
+    {
+      "id": "eyesHalf",
+      "file": "eyesHalf.png",
+      "runtimeFile": "eyesHalf.webp",
+      "left": 324,
+      "top": 392,
+      "width": 374,
+      "height": 218
+    },
+    {
+      "id": "eyesClosed",
+      "file": "eyesClosed.png",
+      "runtimeFile": "eyesClosed.webp",
+      "left": 324,
+      "top": 392,
+      "width": 374,
+      "height": 218
+    },
+    {
+      "id": "mouthClosed",
+      "file": "mouthClosed.png",
+      "runtimeFile": "mouthClosed.webp",
+      "left": 532,
+      "top": 624,
+      "width": 96,
+      "height": 85
+    },
+    {
+      "id": "mouth",
+      "file": "mouth.png",
+      "runtimeFile": "mouth.webp",
+      "left": 532,
+      "top": 624,
+      "width": 96,
+      "height": 85
+    }
+  ],
+  "rig": {
+    "headPivot": {
+      "x": 441,
+      "y": 825
+    },
+    "bodyPivot": {
+      "x": 493,
+      "y": 2760
+    },
+    "bodyRigidUntil": 1300,
+    "bodyFixedFrom": 4380,
+    "hairLeft": {
+      "pin": 722,
+      "tip": 900
+    },
+    "hairRight": {
+      "pin": 693,
+      "tip": 849
+    },
+    "headGain": 0.27,
+    "nodGain": 0.18,
+    "arms": [],
+    "bowPivot": {
+      "x": 441,
+      "y": 410
+    },
+    "blink": true,
+    "mouth": false
+  },
+  "eyeSources": {
+    "open": "ARI_A_01_16_00-HD.png",
+    "half": "ARI_A_01_16_00-HD.png",
+    "closed": "ARI_A_01_16_01-HD.png"
+  },
+  "mouthSource": null,
+  "expressions": [
+    {
+      "id": "01_16_00",
+      "source": "ARI_A_01_16_00-HD.png",
+      "sprite": "side-folded.webp"
+    },
+    {
+      "id": "01_16_01",
+      "source": "ARI_A_01_16_01-HD.png",
+      "sprite": "expressions/01_16_01.webp",
+      "patch": {
+        "left": 328,
+        "top": 397,
+        "width": 361,
+        "height": 299,
+        "runtimeFile": "expressions/01_16_01.webp",
+        "maskFile": "expressions/01_16_01-mask.webp"
+      }
+    }
+  ]
+}

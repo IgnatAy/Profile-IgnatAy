@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 104">
+  <!-- Adapted from nicubunu's public-domain Callout rounded rectangle center:
+       https://openclipart.org/detail/13943/callout-rounded-rectangle-center
+       Regularized corners, downward tail moved right, dark palette and fine outline.
+       Nine-slice guides: top 20, right 64, bottom 44, left 20. -->
+  <path fill="#29282d" stroke="#4b4852" stroke-width="1" stroke-linejoin="round"
+    d="M20 .5H140Q159.5 .5 159.5 20V60Q159.5 79.5 140 79.5H130Q127 79.5 126 82.5L119 101.5Q118.5 103 117.5 101.5L105 82.5Q103 79.5 100 79.5H20Q.5 79.5 .5 60V20Q.5 .5 20 .5Z"/>
+</svg>

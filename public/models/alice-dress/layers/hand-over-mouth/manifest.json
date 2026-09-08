@@ -1,0 +1,229 @@
+{
+  "width": 1824,
+  "height": 5259,
+  "source": "ARI_A_12_10_00-HD.png",
+  "faceRevision": "dress-native-20260908-1",
+  "layers": [
+    {
+      "id": "body",
+      "file": "body.png",
+      "runtimeFile": "body.webp",
+      "left": 0,
+      "top": 0,
+      "width": 1824,
+      "height": 5259
+    },
+    {
+      "id": "headRest",
+      "file": "headRest.png",
+      "runtimeFile": "headRest.webp",
+      "left": 560,
+      "top": 0,
+      "width": 690,
+      "height": 1000
+    },
+    {
+      "id": "headTalk",
+      "file": "headTalk.png",
+      "runtimeFile": "headTalk.webp",
+      "left": 560,
+      "top": 0,
+      "width": 690,
+      "height": 1000
+    },
+    {
+      "id": "head",
+      "file": "head.png",
+      "runtimeFile": "head.webp",
+      "left": 560,
+      "top": 0,
+      "width": 690,
+      "height": 1000
+    },
+    {
+      "id": "hairLeft",
+      "file": "hairLeft.png",
+      "runtimeFile": "hairLeft.webp",
+      "left": 560,
+      "top": 0,
+      "width": 690,
+      "height": 1000
+    },
+    {
+      "id": "hairRight",
+      "file": "hairRight.png",
+      "runtimeFile": "hairRight.webp",
+      "left": 560,
+      "top": 0,
+      "width": 690,
+      "height": 1000
+    },
+    {
+      "id": "bow",
+      "file": "bow.png",
+      "runtimeFile": "bow.webp",
+      "left": 560,
+      "top": 0,
+      "width": 690,
+      "height": 1000
+    },
+    {
+      "id": "backing",
+      "file": "backing.png",
+      "runtimeFile": "backing.webp",
+      "left": 625,
+      "top": 777,
+      "width": 600,
+      "height": 283
+    },
+    {
+      "id": "eyesOpen",
+      "file": "eyesOpen.png",
+      "runtimeFile": "eyesOpen.webp",
+      "left": 679,
+      "top": 455,
+      "width": 427,
+      "height": 150
+    },
+    {
+      "id": "eyesHalf",
+      "file": "eyesHalf.png",
+      "runtimeFile": "eyesHalf.webp",
+      "left": 679,
+      "top": 455,
+      "width": 427,
+      "height": 150
+    },
+    {
+      "id": "eyesClosed",
+      "file": "eyesClosed.png",
+      "runtimeFile": "eyesClosed.webp",
+      "left": 679,
+      "top": 455,
+      "width": 427,
+      "height": 150
+    },
+    {
+      "id": "mouthClosed",
+      "file": "mouthClosed.png",
+      "runtimeFile": "mouthClosed.webp",
+      "left": 850,
+      "top": 650,
+      "width": 98,
+      "height": 100
+    },
+    {
+      "id": "mouth",
+      "file": "mouth.png",
+      "runtimeFile": "mouth.webp",
+      "left": 850,
+      "top": 650,
+      "width": 98,
+      "height": 100
+    }
+  ],
+  "rig": {
+    "headPivot": {
+      "x": 899,
+      "y": 816
+    },
+    "bodyPivot": {
+      "x": 904,
+      "y": 2800
+    },
+    "bodyRigidUntil": 1300,
+    "bodyFixedFrom": 4400,
+    "hairLeft": {
+      "pin": 771,
+      "tip": 901
+    },
+    "hairRight": {
+      "pin": 771,
+      "tip": 901
+    },
+    "headGain": 0,
+    "nodGain": 0,
+    "arms": [
+      {
+        "spring": "armFront",
+        "cx": 1445,
+        "cy": 2220,
+        "rx": 175,
+        "ry": 390,
+        "ex": 1340,
+        "ey": 1750
+      }
+    ],
+    "bowPivot": {
+      "x": 899,
+      "y": 410
+    },
+    "blink": true,
+    "mouth": false
+  },
+  "eyeSources": {
+    "open": "ARI_A_12_10_00-HD.png",
+    "half": "ARI_A_12_10_03-HD.png",
+    "closed": "ARI_A_12_10_04-HD.png"
+  },
+  "mouthSource": null,
+  "expressions": [
+    {
+      "id": "12_10_00",
+      "source": "ARI_A_12_10_00-HD.png",
+      "sprite": "hand-over-mouth.webp"
+    },
+    {
+      "id": "12_10_01",
+      "source": "ARI_A_12_10_01-HD.png",
+      "sprite": "expressions/12_10_01.webp",
+      "patch": {
+        "left": 660,
+        "top": 396,
+        "width": 472,
+        "height": 308,
+        "runtimeFile": "expressions/12_10_01.webp",
+        "maskFile": "expressions/12_10_01-mask.webp"
+      }
+    },
+    {
+      "id": "12_10_02",
+      "source": "ARI_A_12_10_02-HD.png",
+      "sprite": "expressions/12_10_02.webp",
+      "patch": {
+        "left": 660,
+        "top": 412,
+        "width": 476,
+        "height": 296,
+        "runtimeFile": "expressions/12_10_02.webp",
+        "maskFile": "expressions/12_10_02-mask.webp"
+      }
+    },
+    {
+      "id": "12_10_03",
+      "source": "ARI_A_12_10_03-HD.png",
+      "sprite": "expressions/12_10_03.webp",
+      "patch": {
+        "left": 660,
+        "top": 404,
+        "width": 472,
+        "height": 300,
+        "runtimeFile": "expressions/12_10_03.webp",
+        "maskFile": "expressions/12_10_03-mask.webp"
+      }
+    },
+    {
+      "id": "12_10_04",
+      "source": "ARI_A_12_10_04-HD.png",
+      "sprite": "expressions/12_10_04.webp",
+      "patch": {
+        "left": 660,
+        "top": 364,
+        "width": 472,
+        "height": 352,
+        "runtimeFile": "expressions/12_10_04.webp",
+        "maskFile": "expressions/12_10_04-mask.webp"
+      }
+    }
+  ]
+}

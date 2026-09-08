@@ -1,0 +1,195 @@
+{
+  "width": 1509,
+  "height": 4768,
+  "source": "ARI_A_01_19_02-HD.png",
+  "faceRevision": "sweater-native-20260908-1",
+  "layers": [
+    {
+      "id": "body",
+      "file": "body.png",
+      "runtimeFile": "body.webp",
+      "left": 0,
+      "top": 0,
+      "width": 1509,
+      "height": 4768
+    },
+    {
+      "id": "headRest",
+      "file": "headRest.png",
+      "runtimeFile": "headRest.webp",
+      "left": 0,
+      "top": 0,
+      "width": 696,
+      "height": 1030
+    },
+    {
+      "id": "headTalk",
+      "file": "headTalk.png",
+      "runtimeFile": "headTalk.webp",
+      "left": 0,
+      "top": 0,
+      "width": 696,
+      "height": 1030
+    },
+    {
+      "id": "head",
+      "file": "head.png",
+      "runtimeFile": "head.webp",
+      "left": 0,
+      "top": 0,
+      "width": 696,
+      "height": 1030
+    },
+    {
+      "id": "hairLeft",
+      "file": "hairLeft.png",
+      "runtimeFile": "hairLeft.webp",
+      "left": 0,
+      "top": 0,
+      "width": 696,
+      "height": 1030
+    },
+    {
+      "id": "hairRight",
+      "file": "hairRight.png",
+      "runtimeFile": "hairRight.webp",
+      "left": 0,
+      "top": 0,
+      "width": 696,
+      "height": 1030
+    },
+    {
+      "id": "bow",
+      "file": "bow.png",
+      "runtimeFile": "bow.webp",
+      "left": 0,
+      "top": 0,
+      "width": 696,
+      "height": 1030
+    },
+    {
+      "id": "backing",
+      "file": "backing.png",
+      "runtimeFile": "backing.webp",
+      "left": 50,
+      "top": 744,
+      "width": 630,
+      "height": 310
+    },
+    {
+      "id": "eyesOpen",
+      "file": "eyesOpen.png",
+      "runtimeFile": "eyesOpen.webp",
+      "left": 55,
+      "top": 395,
+      "width": 501,
+      "height": 220
+    },
+    {
+      "id": "eyesHalf",
+      "file": "eyesHalf.png",
+      "runtimeFile": "eyesHalf.webp",
+      "left": 55,
+      "top": 395,
+      "width": 501,
+      "height": 220
+    },
+    {
+      "id": "eyesClosed",
+      "file": "eyesClosed.png",
+      "runtimeFile": "eyesClosed.webp",
+      "left": 55,
+      "top": 395,
+      "width": 501,
+      "height": 220
+    },
+    {
+      "id": "mouthClosed",
+      "file": "mouthClosed.png",
+      "runtimeFile": "mouthClosed.webp",
+      "left": 248,
+      "top": 646,
+      "width": 103,
+      "height": 85
+    },
+    {
+      "id": "mouth",
+      "file": "mouth.png",
+      "runtimeFile": "mouth.webp",
+      "left": 248,
+      "top": 646,
+      "width": 103,
+      "height": 85
+    }
+  ],
+  "rig": {
+    "headPivot": {
+      "x": 378,
+      "y": 786
+    },
+    "bodyPivot": {
+      "x": 923,
+      "y": 2600
+    },
+    "bodyRigidUntil": 1260,
+    "bodyFixedFrom": 4010,
+    "hairLeft": {
+      "pin": 732,
+      "tip": 957
+    },
+    "hairRight": {
+      "pin": 730,
+      "tip": 956
+    },
+    "headGain": 0.25,
+    "nodGain": 0.17,
+    "portraitCenterX": 560,
+    "portraitWidth": 1510,
+    "arms": [],
+    "bowPivot": {
+      "x": 378,
+      "y": 410
+    },
+    "blink": true,
+    "mouth": false
+  },
+  "eyeSources": {
+    "open": "ARI_A_01_19_02-HD.png",
+    "half": "ARI_A_01_19_02-HD.png",
+    "closed": "ARI_A_01_19_00-HD.png"
+  },
+  "mouthSource": null,
+  "expressions": [
+    {
+      "id": "01_19_02",
+      "source": "ARI_A_01_19_02-HD.png",
+      "sprite": "shy.webp"
+    },
+    {
+      "id": "01_19_00",
+      "source": "ARI_A_01_19_00-HD.png",
+      "sprite": "expressions/01_19_00.webp",
+      "patch": {
+        "left": 60,
+        "top": 406,
+        "width": 489,
+        "height": 310,
+        "runtimeFile": "expressions/01_19_00.webp",
+        "maskFile": "expressions/01_19_00-mask.webp"
+      }
+    },
+    {
+      "id": "01_19_01",
+      "source": "ARI_A_01_19_01-HD.png",
+      "sprite": "expressions/01_19_01.webp",
+      "patch": {
+        "left": 60,
+        "top": 406,
+        "width": 489,
+        "height": 310,
+        "runtimeFile": "expressions/01_19_01.webp",
+        "maskFile": "expressions/01_19_01-mask.webp"
+      }
+    }
+  ]
+}

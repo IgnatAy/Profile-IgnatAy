@@ -1,0 +1,254 @@
+{
+  "width": 2128,
+  "height": 4886,
+  "source": "ARI_A_13_19_03-HD.png",
+  "faceRevision": "cape-native-20260908-2",
+  "layers": [
+    {
+      "id": "body",
+      "file": "body.png",
+      "runtimeFile": "body.webp",
+      "left": 0,
+      "top": 0,
+      "width": 2128,
+      "height": 4886
+    },
+    {
+      "id": "headRest",
+      "file": "headRest.png",
+      "runtimeFile": "headRest.webp",
+      "left": 140,
+      "top": 0,
+      "width": 800,
+      "height": 1050
+    },
+    {
+      "id": "headTalk",
+      "file": "headTalk.png",
+      "runtimeFile": "headTalk.webp",
+      "left": 140,
+      "top": 0,
+      "width": 800,
+      "height": 1050
+    },
+    {
+      "id": "head",
+      "file": "head.png",
+      "runtimeFile": "head.webp",
+      "left": 140,
+      "top": 0,
+      "width": 800,
+      "height": 1050
+    },
+    {
+      "id": "hairLeft",
+      "file": "hairLeft.png",
+      "runtimeFile": "hairLeft.webp",
+      "left": 140,
+      "top": 0,
+      "width": 800,
+      "height": 1050
+    },
+    {
+      "id": "hairRight",
+      "file": "hairRight.png",
+      "runtimeFile": "hairRight.webp",
+      "left": 140,
+      "top": 0,
+      "width": 800,
+      "height": 1050
+    },
+    {
+      "id": "bow",
+      "file": "bow.png",
+      "runtimeFile": "bow.webp",
+      "left": 140,
+      "top": 0,
+      "width": 800,
+      "height": 1050
+    },
+    {
+      "id": "backing",
+      "file": "backing.png",
+      "runtimeFile": "backing.webp",
+      "left": 215,
+      "top": 745,
+      "width": 705,
+      "height": 355
+    },
+    {
+      "id": "eyesOpen",
+      "file": "eyesOpen.png",
+      "runtimeFile": "eyesOpen.webp",
+      "left": 286,
+      "top": 476,
+      "width": 484,
+      "height": 180
+    },
+    {
+      "id": "eyesHalf",
+      "file": "eyesHalf.png",
+      "runtimeFile": "eyesHalf.webp",
+      "left": 286,
+      "top": 476,
+      "width": 484,
+      "height": 180
+    },
+    {
+      "id": "eyesClosed",
+      "file": "eyesClosed.png",
+      "runtimeFile": "eyesClosed.webp",
+      "left": 286,
+      "top": 476,
+      "width": 484,
+      "height": 180
+    },
+    {
+      "id": "mouthClosed",
+      "file": "mouthClosed.png",
+      "runtimeFile": "mouthClosed.webp",
+      "left": 470,
+      "top": 724,
+      "width": 110,
+      "height": 78
+    },
+    {
+      "id": "mouth",
+      "file": "mouth.png",
+      "runtimeFile": "mouth.webp",
+      "left": 470,
+      "top": 724,
+      "width": 110,
+      "height": 78
+    },
+    {
+      "id": "pomRight",
+      "file": "pomRight.png",
+      "runtimeFile": "pomRight.webp",
+      "left": 468,
+      "top": 987,
+      "width": 245,
+      "height": 376
+    },
+    {
+      "id": "pomLeft",
+      "file": "pomLeft.png",
+      "runtimeFile": "pomLeft.webp",
+      "left": 468,
+      "top": 987,
+      "width": 245,
+      "height": 376
+    }
+  ],
+  "rig": {
+    "headPivot": {
+      "x": 557,
+      "y": 833
+    },
+    "bodyPivot": {
+      "x": 1150,
+      "y": 2510
+    },
+    "bodyRigidUntil": 1310,
+    "bodyFixedFrom": 3200,
+    "hairLeft": {
+      "pin": 845,
+      "tip": 1002
+    },
+    "hairRight": {
+      "pin": 829,
+      "tip": 1008
+    },
+    "headGain": 0.32,
+    "nodGain": 0.2,
+    "portraitCenterX": 735,
+    "portraitWidth": 1610,
+    "arms": [
+      {
+        "spring": "armFront",
+        "cx": 935,
+        "cy": 2380,
+        "rx": 275,
+        "ry": 390,
+        "ex": 963,
+        "ey": 2020
+      },
+      {
+        "spring": "armBack",
+        "cx": 580,
+        "cy": 2090,
+        "rx": 190,
+        "ry": 300,
+        "ex": 475,
+        "ey": 1850
+      }
+    ],
+    "bowPivot": {
+      "x": 557,
+      "y": 410
+    },
+    "blink": true,
+    "mouth": true,
+    "pendants": [
+      {
+        "layer": "pomRight",
+        "pivot": {
+          "x": 598,
+          "y": 989
+        },
+        "gain": 1
+      },
+      {
+        "layer": "pomLeft",
+        "pivot": {
+          "x": 586,
+          "y": 989
+        },
+        "gain": 1
+      }
+    ]
+  },
+  "eyeSources": {
+    "open": "ARI_A_13_19_03-HD.png",
+    "half": "ARI_A_13_19_02-HD.png",
+    "closed": "ARI_A_13_19_02-HD.png"
+  },
+  "mouthSource": "ARI_A_13_19_01-HD.png",
+  "pendantRevision": "cape-pendants-20260908-3",
+  "expressions": [
+    {
+      "id": "13_19_03",
+      "source": "ARI_A_13_19_03-HD.png",
+      "sprite": "shy.webp"
+    },
+    {
+      "id": "13_19_01",
+      "source": "ARI_A_13_19_01-HD.png",
+      "sprite": "expressions/13_19_01.webp",
+      "patch": {
+        "left": 285,
+        "top": 476,
+        "width": 483,
+        "height": 305,
+        "runtimeFile": "expressions/13_19_01.webp",
+        "maskFile": "expressions/13_19_01-mask.webp"
+      },
+      "aliases": [
+        "ari_a_13_19_00_01_01-HD.png"
+      ]
+    },
+    {
+      "id": "13_19_02",
+      "source": "ARI_A_13_19_02-HD.png",
+      "sprite": "expressions/13_19_02.webp",
+      "patch": {
+        "left": 285,
+        "top": 476,
+        "width": 483,
+        "height": 303,
+        "runtimeFile": "expressions/13_19_02.webp",
+        "maskFile": "expressions/13_19_02-mask.webp"
+      }
+    }
+  ]
+}
