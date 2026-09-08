@@ -1,6 +1,6 @@
 const { createCanvas, loadImage } = require('/Users/1gnat4y/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@napi-rs/canvas');
 const fs=require('fs');const assert=require('assert/strict');const {pathToFileURL}=require('url');const path=require('path');
-require('node:module').registerHooks({resolve(specifier,context,next){return next(specifier.startsWith('./alice-')&&!specifier.endsWith('.ts')?`${specifier}.ts`:specifier,context)}});
+require('node:module').registerHooks({resolve(specifier,context,next){return next(/^\.\/alice-[^.]+$/.test(specifier)?`${specifier}.ts`:specifier,context)}});
 async function main(){
  const {IDLE_RIG,LAYERS,createRigState,advanceRig,drawRig,deformBodyPoint}=await import(pathToFileURL(path.resolve('models/alice/alice-rig.ts')));
  const {aliceFraming}=await import(pathToFileURL(path.resolve('models/alice/alice-framing.ts')));

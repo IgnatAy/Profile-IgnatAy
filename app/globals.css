@@ -648,6 +648,7 @@ h1 > span {
 .alice-chat-retention { margin: 0; padding: 4px 18px 12px; border-bottom: 1px solid #ffffff12; color: #c4c0cb; font-size: 12px; }
 .alice-chat button, .alice-chat-bubble button { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; border: 0; border-radius: 999px; background: transparent; color: #d5c6f5; cursor: pointer; }
 .alice-chat button:hover:not(:disabled), .alice-chat-bubble button:hover { background: #ffffff12; }
+.alice-chat .alice-chat-retry:hover:not(:disabled), .alice-chat-bubble .alice-chat-retry:hover { background: transparent; }
 .alice-chat button:disabled { opacity: .4; cursor: default; }
 .alice-chat button:focus-visible, .alice-chat-log:focus-visible, .alice-chat-bubble-content:focus-visible, .alice-chat-bubble button:focus-visible { outline: 2px solid #c6b6e8; outline-offset: -2px; }
 .alice-chat textarea:focus, .alice-chat textarea:focus-visible { outline: none; box-shadow: none; }
@@ -656,6 +657,7 @@ h1 > span {
 .alice-message:last-child { margin-bottom: 0; }
 .alice-message-user { margin-left: 26px; padding: 8px 12px; border-radius: 14px 14px 4px 14px; background: #ffffff0d; }
 .alice-message-assistant { margin-right: 12px; }
+.alice-message-notice { color: #f2b3d7; font-size: 12px; letter-spacing: .04em; }
 .alice-chat-welcome, .alice-chat-status { margin: 0; color: #c4c0cb; }
 .alice-chat-error { color: #efb9bf; }
 .alice-chat-error p { margin: 0; }

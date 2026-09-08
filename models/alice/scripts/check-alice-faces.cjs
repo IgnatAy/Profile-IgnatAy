@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const { pathToFileURL } = require('node:url');
 const { createCanvas, loadImage } = require('/Users/1gnat4y/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@napi-rs/canvas');
 require('node:module').registerHooks({ resolve(specifier, context, next) {
-  return next(specifier.startsWith('./alice-') && !specifier.endsWith('.ts') ? `${specifier}.ts` : specifier, context);
+  return next(/^\.\/alice-[^.]+$/.test(specifier) ? `${specifier}.ts` : specifier, context);
 } });
 const views = { idle: [430, 470, 450, 355], thinking: [425, 480, 450, 355], front: [490, 470, 450, 355], shy: [100, 505, 450, 355] };
 const pixels = image => {

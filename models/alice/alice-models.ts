@@ -98,8 +98,30 @@ export function isAliceEasterEggPreview(): boolean {
 // Rerenders, language changes and remounts on the same section do not reroll.
 let documentModel: AliceModel | undefined;
 let documentSection: string | undefined;
-export function getDocumentAliceModel(section?: string): AliceModel {
+let documentFurious = false;
+let penguinLocked = false;
+
+export function releaseDocumentAlicePenguin() {
+  penguinLocked = false;
+}
+
+export function getDocumentAliceModel(
+  section?: string,
+  furious = false,
+): AliceModel {
   if (typeof window === 'undefined') return 'winter';
+  documentFurious ||= furious;
+  if (documentFurious || penguinLocked) {
+    // Consume navigation without deferring a surprise outfit roll until unlock.
+    homeEasterEgg.take(section, false);
+    if (section !== undefined) documentSection = section;
+    if (documentFurious) {
+      documentModel = 'cape';
+      penguinLocked = false;
+    }
+    return documentModel!;
+  }
+  const previousModel = documentModel;
   const preview = isAliceEasterEggPreview();
   const guaranteed = homeEasterEgg.take(section, documentModel !== 'penguin');
   if (guaranteed) documentModel = 'penguin';
@@ -117,5 +139,8 @@ export function getDocumentAliceModel(section?: string): AliceModel {
           ? 'penguin'
           : pickNextAliceModel(documentModel);
   if (section !== undefined) documentSection = section;
+  // Protect loading/fade-in as well as the delayed message itself.
+  if (documentModel === 'penguin' && previousModel !== 'penguin')
+    penguinLocked = true;
   return documentModel;
 }

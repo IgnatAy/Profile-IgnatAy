@@ -7,7 +7,7 @@ const { pathToFileURL } = require('node:url');
 const { createCanvas, loadImage } = require('/Users/1gnat4y/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@napi-rs/canvas');
 require('node:module').registerHooks({
   resolve(specifier, context, next) {
-    return next(specifier.startsWith('./alice-') && !specifier.endsWith('.ts') ? `${specifier}.ts` : specifier, context);
+    return next(/^\.\/alice-[^.]+$/.test(specifier) ? `${specifier}.ts` : specifier, context);
   },
 });
 async function main() {

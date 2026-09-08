@@ -3,6 +3,7 @@ import {
   memo,
   useCallback,
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
 } from 'react';
@@ -10,7 +11,7 @@ import { AliceCharacter, type AlicePose } from '@/models/alice/alice-character';
 import {
   ALICE_MODELS,
   getDocumentAliceModel,
-  isAliceEasterEggPreview,
+  releaseDocumentAlicePenguin,
   type AliceModel,
 } from '@/models/alice/alice-models';
 import type { Language } from '@/lib/profile';
@@ -18,10 +19,23 @@ import { AliceChat } from '@/components/alice-chat';
 import { AlicePenguinArrival } from '@/components/alice-penguin-arrival';
 import { FadedSwap } from '@/components/faded-swap';
 import { homeEasterEgg } from '@/models/alice/alice-home-easter-egg';
+import { aliceAffect, type AliceAffect } from '@/lib/alice-affect';
+import { pickAliceIdlePose } from '@/models/alice/alice-expressions';
+import { startAliceDwell, ALICE_DWELL_HOLD_MS } from '@/lib/alice-dwell';
+import type { AliceEmotionCue } from '@/lib/alice-emotions';
+import {
+  nextAliceDisplayOrder,
+  type AliceDisplayEntry,
+} from '@/lib/alice-history';
+import {
+  pickAliceAppearance,
+  type AliceAppearance,
+} from '@/models/alice/alice-affect-selection';
 import {
   getReducedMotion,
   subscribeReducedMotion,
 } from '@/lib/browser-preferences';
+const readSections = new Set<string>();
 export const AliceCompanion = memo(function AliceCompanion({
   lang,
   section,
@@ -31,7 +45,6 @@ export const AliceCompanion = memo(function AliceCompanion({
 }) {
   const [model, setModel] = useState(() => getDocumentAliceModel(section));
   const [previousSection, setPreviousSection] = useState(section);
-  const [preview] = useState(isAliceEasterEggPreview);
   const [shownModel, setShownModel] = useState<AliceModel | null>(null);
   const reduced = useSyncExternalStore(
     subscribeReducedMotion,
@@ -39,16 +52,89 @@ export const AliceCompanion = memo(function AliceCompanion({
     () => false,
   );
   const [chatOpen, setChatOpen] = useState(false);
+  const [chatHistoryExpanded, setChatHistoryExpanded] = useState(false);
+  const [easterHistory, setEasterHistory] = useState<AliceDisplayEntry[]>([]);
   const [speaking, setSpeaking] = useState(false);
+  const affect = useSyncExternalStore(
+    aliceAffect.subscribe,
+    aliceAffect.getSnapshot,
+    aliceAffect.getServerSnapshot,
+  );
+  const furious = affect?.source === 'boundary';
+  const dwell = useRef<ReturnType<typeof startAliceDwell> | null>(null);
+  const canRead = !chatOpen && (affect?.priority ?? 0) <= 40;
+  const canReadRef = useRef(canRead);
+  useEffect(() => {
+    canReadRef.current = canRead;
+    dwell.current?.setEnabled(canRead);
+  }, [canRead]);
+  useEffect(() => {
+    if (readSections.has(section)) return;
+    const timer = startAliceDwell(() => {
+      if (
+        aliceAffect.request({
+          emotion: 'proud',
+          intensity: 0.65,
+          source: 'dwell',
+          priority: 40,
+          holdMs: ALICE_DWELL_HOLD_MS,
+        })
+      )
+        readSections.add(section);
+    }, canReadRef.current);
+    dwell.current = timer;
+    return () => {
+      timer.dispose();
+      dwell.current = null;
+      aliceAffect.leaveSection();
+    };
+  }, [section]);
+  useEffect(() => {
+    if (chatOpen)
+      aliceAffect.request({
+        emotion: 'attentive',
+        intensity: 0.45,
+        source: 'attention',
+        priority: 50,
+        holdMs: 2000,
+      });
+  }, [chatOpen]);
+  useEffect(() => () => aliceAffect.reset(), []);
+  const replyStart = useCallback(() => {
+    aliceAffect.request({
+      emotion: 'thinking',
+      intensity: 0.5,
+      source: 'chat',
+      priority: 80,
+      holdMs: 0,
+      locked: true,
+    });
+  }, []);
+  const replyEmotion = useCallback((cue: AliceEmotionCue) => {
+    aliceAffect.request({
+      ...cue,
+      source: 'chat',
+      priority: 80,
+      holdMs: 0,
+      locked: true,
+    });
+  }, []);
+  const replyEnd = useCallback((failed: boolean, cue?: AliceEmotionCue) => {
+    if (failed) aliceAffect.reset();
+    else {
+      if (cue) aliceAffect.recordChatReaction(cue);
+      aliceAffect.finishChat();
+    }
+  }, []);
   const modelShown = useCallback((outfit: AliceModel) => {
     setShownModel(outfit);
     if (outfit === 'penguin') homeEasterEgg.encountered();
   }, []);
   // Adjust before committing a new section, so an old pose is never paired
   // with a new model. The document selector also deduplicates StrictMode renders.
-  if (previousSection !== section) {
+  if (previousSection !== section || (furious && model !== 'cape')) {
     setPreviousSection(section);
-    const next = getDocumentAliceModel(section);
+    const next = getDocumentAliceModel(section, furious);
     if (next !== model) {
       setModel(next);
       setShownModel(null);
@@ -114,24 +200,46 @@ export const AliceCompanion = memo(function AliceCompanion({
       .querySelector<HTMLButtonElement>('.companion .character-touch')
       ?.focus();
   }, []);
+  const recordEasterHistory = useCallback(
+    (entries: Omit<AliceDisplayEntry, 'id' | 'order'>[]) => {
+      setEasterHistory((current) => [
+        ...current,
+        ...entries.map((entry) => {
+          const order = nextAliceDisplayOrder();
+          return { ...entry, id: order, order };
+        }),
+      ]);
+    },
+    [],
+  );
   return (
     <aside
       className="companion"
       data-model={model}
+      data-emotion={affect?.emotion ?? 'idle'}
+      data-emotion-source={affect?.source}
       aria-label={lang === 'en' ? 'Alice' : '有珠'}
     >
       <AliceChat
         lang={lang}
+        displayOnlyEntries={easterHistory}
         open={chatOpen}
+        disabled={furious}
         onClose={closeChat}
+        onExpandedChange={setChatHistoryExpanded}
         onSpeaking={setSpeaking}
+        onEmotion={replyEmotion}
+        onReplyStart={replyStart}
+        onReplyEnd={replyEnd}
       />
       {model === 'penguin' && shownModel === model && (
         <AlicePenguinArrival
-          key={preview ? section : model}
+          key={model}
           lang={lang}
           reduced={reduced}
-          showBubble={!chatOpen}
+          showBubble={!chatOpen || !chatHistoryExpanded}
+          onComplete={releaseDocumentAlicePenguin}
+          onHistory={recordEasterHistory}
         />
       )}
       <FadedSwap
@@ -145,6 +253,7 @@ export const AliceCompanion = memo(function AliceCompanion({
             lang={lang}
             reduced={reduced}
             speaking={chatOpen && speaking}
+            affect={affect}
             onReady={onReady}
             onInteract={() => (chatOpen ? closeChat() : setChatOpen(true))}
           />
@@ -159,6 +268,7 @@ function CompanionModel({
   lang,
   reduced,
   speaking,
+  affect,
   onReady,
   onInteract,
 }: {
@@ -166,11 +276,30 @@ function CompanionModel({
   lang: Language;
   reduced: boolean;
   speaking: boolean;
+  affect: AliceAffect | null;
   onReady: () => void;
   onInteract: () => void;
 }) {
   const poses = ALICE_MODELS[model].poses;
   const [pose, setPose] = useState<AlicePose>('idle');
+  const [appearance, setAppearance] = useState<{
+    key: string;
+    value: AliceAppearance;
+  } | null>(null);
+  const affectKey = affect ? `${model}:${affect.id}:${affect.intensity}` : null;
+  if (affect && appearance?.key !== affectKey) {
+    setAppearance({
+      key: affectKey!,
+      value: pickAliceAppearance(model, affect, appearance?.value),
+    });
+  }
+  const controlled =
+    affect?.source === 'boundary' && model === 'cape'
+      ? { pose: 'relaxed' as const, expressionId: '13_11_00' }
+      : affect && appearance?.key === affectKey
+        ? appearance.value
+        : null;
+  const displayPose = controlled?.pose ?? pose;
   const [layered, setLayered] = useState(true);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -180,16 +309,13 @@ function CompanionModel({
     onReady();
   }, [onReady]);
   useEffect(() => {
-    if (reduced || !ready) return;
+    if (reduced || !ready || affect !== null) return;
     let timer: ReturnType<typeof setTimeout>;
     const schedule = () => {
       timer = setTimeout(
         () => {
           if (!document.hidden && poses.length > 1 && Math.random() >= 2 / 3)
-            setPose((current) => {
-              const rest = poses.filter((p) => p !== current);
-              return rest[Math.floor(Math.random() * rest.length)] ?? current;
-            });
+            setPose((current) => pickAliceIdlePose(model, poses, current));
           schedule();
         },
         7000 + Math.random() * 7000,
@@ -205,13 +331,14 @@ function CompanionModel({
       clearTimeout(timer);
       document.removeEventListener('visibilitychange', visibility);
     };
-  }, [reduced, ready, poses]);
+  }, [model, reduced, ready, poses, affect]);
   return (
     <>
       <div className="companion-crop">
         <AliceCharacter
           model={model}
-          pose={pose}
+          pose={displayPose}
+          expressionId={controlled?.expressionId}
           speaking={speaking && !reduced}
           motion={!reduced}
           autonomous={!reduced}

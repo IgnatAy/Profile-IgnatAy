@@ -14,9 +14,7 @@ import {
 registerHooks({
   resolve(specifier, context, next) {
     return next(
-      specifier.startsWith('./alice-') && !specifier.endsWith('.ts')
-        ? `${specifier}.ts`
-        : specifier,
+      /^\.\/alice-[^.]+$/.test(specifier) ? `${specifier}.ts` : specifier,
       context,
     );
   },
@@ -131,6 +129,18 @@ try {
   assert.equal(models.getDocumentAliceModel('academic'), 'penguin');
   assert.equal(calls, 2, 'Same-page interactions never reroll');
   assert.equal(
+    models.getDocumentAliceModel('projects'),
+    'penguin',
+    'Arrival locks page switching',
+  );
+  assert.equal(calls, 2, 'Locked navigation never draws');
+  models.releaseDocumentAlicePenguin();
+  assert.equal(
+    models.getDocumentAliceModel('projects'),
+    'penguin',
+    'Unlock does not replay navigation or rearm the lock',
+  );
+  assert.equal(
     models.getDocumentAliceModel('about'),
     'winter',
     'Back navigation also switches',
@@ -151,6 +161,8 @@ try {
   };
   assert.equal(preview.getDocumentAliceModel('about'), 'penguin');
   Math.random = () => 0.99;
+  assert.equal(preview.getDocumentAliceModel('digital'), 'penguin');
+  preview.releaseDocumentAlicePenguin();
   assert.notEqual(
     preview.getDocumentAliceModel('academic'),
     'penguin',
@@ -168,6 +180,20 @@ try {
     false,
     'Preview odds cannot affect deployed visitors',
   );
+  for (const model of ALICE_MODEL_IDS) {
+    Math.random = () => sampleFor(model);
+    const locked = await import(
+      `../models/alice/alice-models.ts?boundary-${model}`
+    );
+    assert.equal(locked.getDocumentAliceModel('about'), model);
+    assert.equal(locked.getDocumentAliceModel('about', true), 'cape');
+    locked.releaseDocumentAlicePenguin();
+    Math.random = () => {
+      throw new Error('Terminal state must never roll');
+    };
+    for (const section of ['academic', 'about', 'digital', 'about'])
+      assert.equal(locked.getDocumentAliceModel(section), 'cape');
+  }
 } finally {
   Math.random = nativeRandom;
   delete globalThis.window;

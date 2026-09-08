@@ -6,7 +6,7 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const { pathToFileURL } = require('node:url');
 const { createCanvas, loadImage } = require('/Users/1gnat4y/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@napi-rs/canvas');
-require('node:module').registerHooks({ resolve(s, c, next) { return next(s.startsWith('./alice-') && !s.endsWith('.ts') ? s + '.ts' : s, c); } });
+require('node:module').registerHooks({ resolve(s, c, next) { return next(/^\.\/alice-[^.]+$/.test(s) ? s + '.ts' : s, c); } });
 async function main() {
   const { advanceHairChain, drawHairRibbon, prepareHairRibbon } = await import(pathToFileURL(path.resolve('models/alice/alice-hair.ts')));
   const { createRigState, advanceRig } = await import(pathToFileURL(path.resolve('models/alice/alice-rig.ts')));

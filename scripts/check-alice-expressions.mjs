@@ -19,7 +19,7 @@ const { ALICE_MODELS } = await import('../models/alice/alice-models.ts');
 const { groups } = createRequire(import.meta.url)(
   '../models/alice/scripts/prepare-alice-expressions.cjs',
 );
-const { getAliceExpressions, pickAliceExpression, aliceExpressionDelay } =
+const { getAliceExpressions, aliceExpressionDelay } =
   await import('../models/alice/alice-expressions.ts');
 const { loadRigAsset, loadRigExpression } =
   await import('../models/alice/alice-rig-assets.ts');
@@ -69,24 +69,8 @@ for (const [model, conf] of Object.entries(ALICE_MODELS)) {
     cells = [];
   for (const pose of conf.poses) {
     const choices = getAliceExpressions(model, pose);
-    // Prove that even mouth-open/closed-eye frames remain eligible as complete
-    // expressions, with no immediate repeats (and stable single-source poses).
-    for (const current of choices) {
-      const pool = choices.filter((x) => x !== current);
-      if (!pool.length)
-        assert.equal(pickAliceExpression(model, pose, current.id), current.id);
-      else
-        for (let i = 0; i < pool.length; i++)
-          assert.equal(
-            pickAliceExpression(
-              model,
-              pose,
-              current.id,
-              () => (i + 0.5) / pool.length,
-            ),
-            pool[i].id,
-          );
-    }
+    // Idle probabilities are checked separately in check-alice-idle-odds.mjs;
+    // every expression remains available for explicit conversation reactions.
     const base = await loadRigAsset(pose, model).catch((error) => {
       throw new Error(`${model}/${pose}: rig load`, { cause: error });
     });
@@ -342,5 +326,5 @@ assert.equal(
   8000,
 );
 console.log(
-  `PASS: ${states} complete states, ${pixels} replaced pixels, source coverage, alpha contours, no-repeat draws and 4–8s holds.`,
+  `PASS: ${states} complete states, ${pixels} replaced pixels, source coverage, alpha contours and 4–8s holds.`,
 );

@@ -73,6 +73,7 @@ try {
         props.pose,
         props.motion,
         props.visible,
+        props.controlledId,
       );
       while (effects.length) effects.shift()();
     } while (dirty);
@@ -102,22 +103,40 @@ try {
     first,
     'One pose changes expression without a pose event',
   );
-  const second = selected.id;
+  props.controlledId = '12_02_08';
+  render();
+  assert.equal(selected.id, '12_02_08');
+  assert.equal(
+    timers.size,
+    0,
+    'Controlled emotion pauses both expression clocks',
+  );
+  advance(60000);
+  assert.equal(
+    selected.id,
+    '12_02_08',
+    'Native emotion remains throughout a reply',
+  );
+  props.controlledId = undefined;
+  render();
+  advance(0);
+  advance(4000);
+  const resumed = selected.id;
   props.visible = false;
   render();
   assert.equal(timers.size, 0, 'Background tabs cancel the expression clock');
   advance(30000);
-  assert.equal(selected.id, second);
+  assert.equal(selected.id, resumed);
   props.visible = true;
   render();
   advance(3999);
   assert.equal(
     selected.id,
-    second,
+    resumed,
     'Resume gives a fresh hold, not a burst of missed expressions',
   );
   advance(1);
-  assert.notEqual(selected.id, second);
+  assert.notEqual(selected.id, resumed);
   props.motion = false;
   render();
   assert.equal(timers.size, 0);

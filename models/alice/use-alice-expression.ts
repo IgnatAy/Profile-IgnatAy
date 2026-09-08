@@ -14,6 +14,7 @@ export function useAliceExpression(
   pose: AlicePose,
   motion: boolean,
   visible: boolean,
+  controlledId?: string,
 ) {
   const key = `${model}:${pose}`;
   const [selection, setSelection] = useState<{
@@ -21,14 +22,20 @@ export function useAliceExpression(
     id: string;
   } | null>(null);
   useEffect(() => {
+    if (controlledId !== undefined) return;
     const initial = setTimeout(
       () => setSelection({ key, id: pickAliceExpression(model, pose) }),
       0,
     );
     return () => clearTimeout(initial);
-  }, [model, pose, key]);
+  }, [model, pose, key, controlledId]);
   useEffect(() => {
-    if (!motion || !visible || getAliceExpressions(model, pose).length < 2)
+    if (
+      controlledId !== undefined ||
+      !motion ||
+      !visible ||
+      getAliceExpressions(model, pose).length < 2
+    )
       return;
     let timer: ReturnType<typeof setTimeout>;
     const schedule = () => {
@@ -46,10 +53,10 @@ export function useAliceExpression(
     };
     schedule();
     return () => clearTimeout(timer);
-  }, [model, pose, key, motion, visible]);
+  }, [model, pose, key, motion, visible, controlledId]);
   return getAliceExpression(
     model,
     pose,
-    selection?.key === key ? selection.id : undefined,
+    controlledId ?? (selection?.key === key ? selection.id : undefined),
   );
 }

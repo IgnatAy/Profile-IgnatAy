@@ -36,6 +36,7 @@ export function AliceCharacter({
   speaking,
   motion,
   autonomous = false,
+  expressionId,
   fullBody,
   layered,
   exploded,
@@ -53,6 +54,7 @@ export function AliceCharacter({
   speaking: boolean;
   motion: boolean;
   autonomous?: boolean;
+  expressionId?: string;
   fullBody: boolean;
   onInteract: () => void;
   onReady: () => void;
@@ -70,7 +72,7 @@ export function AliceCharacter({
   const [halfEye, setHalfEye] = useState(false);
   const [mouthOpen, setMouthOpen] = useState(false);
   const [visible, setVisible] = useState(true);
-  const expression = useAliceExpression(model, pose, motion, visible);
+  const expression = useAliceExpression(model, pose, motion, visible, expressionId);
   const expressionKey = `${model}:${displayPose}`;
   const defaultExpression = getAliceExpression(model, displayPose);
   const requestedExpression =

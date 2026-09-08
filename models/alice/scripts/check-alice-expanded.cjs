@@ -7,7 +7,7 @@ const { createCanvas, loadImage, GlobalFonts } = require('/Users/1gnat4y/.cache/
 const fontPath = '/System/Library/Fonts/Supplemental/Arial Unicode.ttf';
 if (fs.existsSync(fontPath)) GlobalFonts.registerFromPath(fontPath, 'Alice Review');
 require('node:module').registerHooks({ resolve(specifier, context, next) {
-  return next(specifier.startsWith('./alice-') && !specifier.endsWith('.ts') ? `${specifier}.ts` : specifier, context);
+  return next(/^\.\/alice-[^.]+$/.test(specifier) ? `${specifier}.ts` : specifier, context);
 } });
 const { ALICE_MODELS } = require('../alice-models.ts');
 const modelIndex = process.argv.indexOf('--model');

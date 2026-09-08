@@ -13,6 +13,7 @@ import {
   ALICE_EASTER_BUBBLE_DELAY_MS,
 } from '@/lib/interaction-timing';
 import { startVisibleTimeline } from '@/lib/visible-timeline';
+import type { AliceDisplayEntry } from '@/lib/alice-history';
 
 // Original lines inspired by Alice's reserved, flustered composure.
 const lines = [
@@ -74,6 +75,7 @@ const sparkles = Array.from(
 );
 
 const getHidden = () => document.hidden;
+const ignoreHistory = () => {};
 function subscribeVisibility(listener: () => void) {
   document.addEventListener('visibilitychange', listener);
   return () => document.removeEventListener('visibilitychange', listener);
@@ -83,12 +85,27 @@ export function AlicePenguinArrival({
   lang,
   reduced,
   showBubble,
+  onComplete,
+  onHistory = ignoreHistory,
 }: {
   lang: Language;
   reduced: boolean;
   showBubble: boolean;
+  onComplete: () => void;
+  onHistory?: (entries: Omit<AliceDisplayEntry, 'id' | 'order'>[]) => void;
 }) {
   const [line] = useState(pickLine);
+  const [historyEntries] = useState<Omit<
+    AliceDisplayEntry,
+    'id' | 'order'
+  >[]>(() => [
+    {
+      role: 'notice',
+      content:
+        lang === 'zh' ? '你发现了企鹅彩蛋' : 'A rare penguin encounter',
+    },
+    { role: 'assistant', content: lines[line][lang] },
+  ]);
   const [effectVisible, setEffectVisible] = useState(true);
   const [bubbleVisible, setBubbleVisible] = useState(false);
   const hidden = useSyncExternalStore(
@@ -102,15 +119,21 @@ export function AlicePenguinArrival({
     return startVisibleTimeline([
       {
         after: ALICE_EASTER_BUBBLE_DELAY_MS,
-        run: () => setBubbleVisible(true),
+        run: () => {
+          setBubbleVisible(true);
+          onHistory(historyEntries);
+        },
       },
       {
         after: ALICE_EASTER_BUBBLE_DELAY_MS + ALICE_BUBBLE_MS,
-        run: () => setBubbleVisible(false),
+        run: () => {
+          setBubbleVisible(false);
+          onComplete();
+        },
       },
       { after: 9000, run: () => setEffectVisible(false) },
     ]);
-  }, []);
+  }, [historyEntries, onComplete, onHistory]);
 
   return (
     <>
@@ -159,7 +182,10 @@ export function AlicePenguinArrival({
             aria-label={
               lang === 'zh' ? '收起彩蛋提示' : 'Dismiss Easter egg message'
             }
-            onClick={() => setBubbleVisible(false)}
+            onClick={() => {
+              setBubbleVisible(false);
+              onComplete();
+            }}
           >
             <X size={16} />
           </button>

@@ -1,5 +1,18 @@
 export type ChatMessage = { role: 'user' | 'assistant'; content: string };
 
+export type AliceDisplayEntry = {
+  id: number;
+  order: number;
+  role: 'assistant' | 'notice';
+  content: string;
+};
+
+let displayOrder = 0;
+export function nextAliceDisplayOrder() {
+  displayOrder += 1;
+  return displayOrder;
+}
+
 export const ALICE_MAX_TURNS = 10;
 
 // A turn begins with a user message and includes its reply, when available.

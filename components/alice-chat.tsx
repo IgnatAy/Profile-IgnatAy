@@ -10,28 +10,45 @@ import {
 } from 'lucide-react';
 import type { Language } from '@/lib/profile';
 import { requestAliceReply } from '@/lib/alice-client';
+import type { AliceEmotionCue } from '@/lib/alice-emotions';
 import { ALICE_BUBBLE_MS } from '@/lib/interaction-timing';
 import { startVisibleTimeline } from '@/lib/visible-timeline';
 import {
   ALICE_MAX_TURNS,
+  nextAliceDisplayOrder,
   retainAliceTurns,
+  type AliceDisplayEntry,
   type ChatMessage,
 } from '@/lib/alice-history';
 
+type DisplayChatMessage = ChatMessage & { id: number; order: number };
+
 export function AliceChat({
   lang,
+  displayOnlyEntries = [],
   open,
+  disabled,
   onClose,
+  onExpandedChange,
   onSpeaking,
+  onEmotion,
+  onReplyStart,
+  onReplyEnd,
 }: {
   lang: Language;
+  displayOnlyEntries?: AliceDisplayEntry[];
   open: boolean;
+  disabled: boolean;
   onClose: () => void;
+  onExpandedChange: (expanded: boolean) => void;
   onSpeaking: (value: boolean) => void;
+  onEmotion: (cue: AliceEmotionCue) => void;
+  onReplyStart: () => void;
+  onReplyEnd: (failed: boolean, cue?: AliceEmotionCue) => void;
 }) {
   // Keep this component mounted for the page's lifetime, including while closed.
   // Nothing is persisted across a page refresh or a closed browser tab.
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<DisplayChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [pending, setPending] = useState(false);
@@ -52,6 +69,13 @@ export function AliceChat({
   const turnCount = messages.filter(
     (message) => message.role === 'user',
   ).length;
+  const visibleHistory = [...messages, ...displayOnlyEntries].sort(
+    (left, right) => left.order - right.order,
+  );
+
+  useEffect(() => {
+    onExpandedChange(expanded);
+  }, [expanded, onExpandedChange]);
 
   useEffect(() => {
     if (!open) return;
@@ -62,8 +86,8 @@ export function AliceChat({
     return () => document.removeEventListener('keydown', escape);
   }, [open, onClose]);
   useEffect(() => {
-    if (open && !pending && !error) input.current?.focus();
-  }, [open, pending, error]);
+    if (open && !pending && !error && !disabled) input.current?.focus();
+  }, [open, pending, error, disabled]);
   useEffect(() => {
     return () => {
       const active = request.current;
@@ -82,11 +106,18 @@ export function AliceChat({
   }, [latestReply, pending, error, open, expanded]);
 
   async function send(retry = false) {
-    if (request.current || (!retry && (!draft.trim() || error))) return;
+    if (disabled || request.current || (!retry && (!draft.trim() || error)))
+      return;
     if (retry && lastMessage?.role !== 'user') return;
-    const next = retainAliceTurns(
-      retry ? messages : [...messages, { role: 'user', content: draft.trim() }],
-    );
+    let next: DisplayChatMessage[];
+    if (retry) next = retainAliceTurns(messages) as DisplayChatMessage[];
+    else {
+      const order = nextAliceDisplayOrder();
+      next = retainAliceTurns([
+        ...messages,
+        { role: 'user', content: draft.trim(), id: order, order },
+      ]) as DisplayChatMessage[];
+    }
     setMessages(next);
     if (!retry) setDraft('');
     setError('');
@@ -98,6 +129,8 @@ export function AliceChat({
     const controller = new AbortController();
     request.current = controller;
     const timeout = setTimeout(() => controller.abort(), 50000);
+    let failed = false;
+    let replyCue: AliceEmotionCue | undefined;
     try {
       const content = await requestAliceReply(
         next,
@@ -106,15 +139,35 @@ export function AliceChat({
           if (controller.signal.aborted || request.current !== controller)
             return;
           setStreamingReply(text);
-          onSpeaking(true);
+          onSpeaking(Boolean(text));
         },
         lang,
+        {
+          onAttemptStart: () => {
+            replyCue = undefined;
+            if (!controller.signal.aborted && request.current === controller)
+              onReplyStart();
+          },
+          onEmotion: (cue) => {
+            if (!controller.signal.aborted && request.current === controller) {
+              replyCue = cue;
+              onEmotion(cue);
+            }
+          },
+        },
       );
-      if (controller.signal.aborted) return;
-      setMessages(retainAliceTurns([...next, { role: 'assistant', content }]));
+      if (controller.signal.aborted || request.current !== controller) return;
+      const order = nextAliceDisplayOrder();
+      setMessages(
+        retainAliceTurns([
+          ...next,
+          { role: 'assistant', content, id: order, order },
+        ]) as DisplayChatMessage[],
+      );
       setStreamingReply('');
     } catch (failure) {
       if (controller.signal.aborted && request.current !== controller) return;
+      failed = true;
       setError(
         failure instanceof Error ? failure.message || 'upstream' : 'upstream',
       );
@@ -124,6 +177,7 @@ export function AliceChat({
         request.current = null;
         setPending(false);
         onSpeaking(false);
+        onReplyEnd(failed, failed ? undefined : replyCue);
         bubbleTimer.current = startVisibleTimeline([
           { after: ALICE_BUBBLE_MS, run: () => setBubbleVisible(false) },
         ]);
@@ -151,7 +205,12 @@ export function AliceChat({
                   '回复没能送达，再试一次吧。',
                 )}
           </p>
-          <button type="button" onClick={() => void send(true)}>
+          <button
+            type="button"
+            className="alice-chat-retry"
+            disabled={disabled}
+            onClick={() => void send(true)}
+          >
             <RotateCcw size={14} />
             {t('Retry', '重试')}
           </button>
@@ -228,20 +287,22 @@ export function AliceChat({
             // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Allow keyboard scrolling through conversation history.
             tabIndex={0}
           >
-            {!messages.length && (
+            {!visibleHistory.length && (
               <p className="alice-chat-welcome">
                 {t('What did you want to ask?', '有什么想问的？')}
               </p>
             )}
-            {messages.map((message, index) => (
+            {visibleHistory.map((message) => (
               <p
                 className={`alice-message alice-message-${message.role}`}
-                key={index}
+                key={`${message.role}-${message.id}`}
               >
                 <span className="sr-only">
                   {message.role === 'user'
                     ? t('You: ', '你：')
-                    : t('Alice: ', '有珠：')}
+                    : message.role === 'assistant'
+                      ? t('Alice: ', '有珠：')
+                      : t('Easter egg: ', '彩蛋提示：')}
                 </span>
                 {message.content}
               </p>
@@ -270,9 +331,13 @@ export function AliceChat({
             onChange={(event) => setDraft(event.target.value)}
             rows={1}
             maxLength={2000}
-            disabled={pending || !!error}
+            disabled={disabled || pending || !!error}
             aria-label={t('Message Alice', '给有珠的消息')}
-            placeholder={t('Message Alice…', '和有珠说点什么…')}
+            placeholder={
+              disabled
+                ? t('Alice no longer wants to talk.', '有珠已经不想再说话了。')
+                : t('Message Alice…', '和有珠说点什么…')
+            }
             onKeyDown={(event) => {
               if (
                 event.key === 'Enter' &&
@@ -286,7 +351,7 @@ export function AliceChat({
           />
           <button
             type="submit"
-            disabled={pending || !!error || !draft.trim()}
+            disabled={disabled || pending || !!error || !draft.trim()}
             aria-label={t('Send message', '发送消息')}
           >
             {pending ? (

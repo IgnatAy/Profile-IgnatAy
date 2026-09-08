@@ -12,9 +12,7 @@ registerHooks({
       );
     }
     return next(
-      specifier.startsWith('./alice-') && !specifier.endsWith('.ts')
-        ? `${specifier}.ts`
-        : specifier,
+      /^\.\/alice-[^.]+$/.test(specifier) ? `${specifier}.ts` : specifier,
       context,
     );
   },
@@ -24,7 +22,11 @@ async function documentFixture(name) {
     `../models/alice/alice-home-easter-egg.ts?${name}`
   );
   const models = await import(`../models/alice/alice-models.ts?${name}`);
-  return { home: homeEasterEgg, select: models.getDocumentAliceModel };
+  return {
+    home: homeEasterEgg,
+    select: models.getDocumentAliceModel,
+    release: models.releaseDocumentAlicePenguin,
+  };
 }
 const nativeRandom = Math.random;
 globalThis.window = { location: { hostname: 'example.test', search: '' } };
@@ -46,6 +48,8 @@ try {
     'First valid logo return bypasses random selection',
   );
   first.home.encountered();
+  assert.equal(first.select('projects'), 'penguin');
+  first.release();
   assert.equal(
     first.select('digital'),
     'sweater',
@@ -66,6 +70,7 @@ try {
   Math.random = () => 0;
   assert.equal(random.select('academic'), 'penguin');
   random.home.encountered();
+  random.release();
   assert.equal(
     random.home.request('academic'),
     false,
@@ -85,11 +90,13 @@ try {
   Math.random = () => 0;
   assert.equal(loading.select('academic'), 'penguin');
   loading.home.request('academic');
-  assert.notEqual(
+  assert.equal(
     loading.select('about'),
     'penguin',
-    'Returning Home must leave a selected penguin even before its arrival callback',
+    'The lock protects penguin even before its arrival callback',
   );
+  loading.release();
+  assert.notEqual(loading.select('academic'), 'penguin');
   assert.equal(
     loading.home.request('digital'),
     false,

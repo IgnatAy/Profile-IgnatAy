@@ -10,7 +10,7 @@ const { configs } = require('./prepare-alice-pendants.cjs');
 require('node:module').registerHooks({
   resolve(specifier, context, next) {
     return next(
-      specifier.startsWith('./alice-') && !specifier.endsWith('.ts')
+      /^\.\/alice-[^.]+$/.test(specifier)
         ? `${specifier}.ts`
         : specifier,
       context,

@@ -6,7 +6,7 @@ import { createCanvas, loadImage } from '/Users/1gnat4y/.cache/codex-runtimes/co
 
 registerHooks({
   resolve(specifier, context, next) {
-    return next(specifier.startsWith('./alice-') && !specifier.endsWith('.ts')
+    return next(/^\.\/alice-[^.]+$/.test(specifier)
       ? `${specifier}.ts` : specifier, context);
   },
 });

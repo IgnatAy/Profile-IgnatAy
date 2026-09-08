@@ -18,7 +18,7 @@ const { createCanvas, loadImage } = require('/Users/1gnat4y/.cache/codex-runtime
 
 require('node:module').registerHooks({
   resolve(specifier, context, next) {
-    return next(specifier.startsWith('./alice-') && !specifier.endsWith('.ts') ? `${specifier}.ts` : specifier, context);
+    return next(/^\.\/alice-[^.]+$/.test(specifier) ? `${specifier}.ts` : specifier, context);
   },
 });
 
