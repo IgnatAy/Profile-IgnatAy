@@ -6,8 +6,8 @@
 
 GitHub Pages 可通过本仓库 Actions 工作流发布，也可从 main 分支根目录发布。不要在此安装依赖或重新构建。
 
-构建时间：2026-09-08T18:02:36.106Z
+构建时间：2026-09-09T07:19:03.203Z
 
-源码校验值：`03f1da258fc6de558dd5f37c415ae984c328391d346cef838aa3aff9512fbbcd`
+源码校验值：`f758e798217229e6dc221be7be0c39783b58b1f64e1a8492e5da3da0af530b01`
 
 `release-manifest.json` 记录整份静态站点的文件校验值，Actions 会在发布前验证。
